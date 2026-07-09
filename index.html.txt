@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Grid Calculator</title>
+    <style>
+        /* --- Base & Reset Styles --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+        }
+
+        /* --- Calculator Container --- */
+        .calculator {
+            background-color: #111827;
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 340px;
+            border: 1px solid #1e293b;
+        }
+
+        /* --- Display Screen --- */
+        .display {
+            background-color: #030712;
+            color: #10b981; /* Neon Green text style */
+            font-size: 2.5rem;
+            text-align: right;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            letter-spacing: 1px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+            min-height: 80px;
+        }
+
+        /* --- Buttons Layout using CSS Grid --- */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        /* --- Button Component Styling --- */
+        button {
+            border: none;
+            background-color: #1f2937;
+            color: #f3f4f6;
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #374151;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        /* Special Color Coding for Semantics */
+        button.operator {
+            color: #3b82f6; /* Blue for logic symbols */
+            background-color: #1e3a8a;
+        }
+
+        button.operator:hover {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        button.clear {
+            color: #ef4444; /* Red for destructive action */
+            background-color: #7f1d1d;
+        }
+
+        button.clear:hover {
+            background-color: #dc2626;
+            color: #fff;
+        }
+
+        button.equals {
+            grid-column: span 2; /* Spans across two columns */
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+
+        button.equals:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display" id="screen">0</div>
+
+        <div class="buttons-grid">
+            <button class="clear" onclick="clearScreen()">C</button>
+            <button class="operator" onclick="appendValue('/')">÷</button>
+            <button class="operator" onclick="appendValue('*')">×</button>
+            <button class="operator" onclick="appendValue('-')">−</button>
+
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button class="operator" onclick="appendValue('+')">+</button>
+
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button onclick="appendValue('.')">.</button>
+
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button onclick="appendValue('0')">0</button>
+
+            <button class="equals" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById('screen');
+        let resetScreen = false;
+
+        // Appends values onto the calculation string stream
+        function appendValue(value) {
+            // Guard conditions to manage starting state or refresh targets
+            if (screen.innerText === '0' || screen.innerText === 'Error' || resetScreen) {
+                screen.innerText = '';
+                resetScreen = false;
+            }
+            screen.innerText += value;
+        }
+
+        // Destructive utility to wipe calculations clean
+        function clearScreen() {
+            screen.innerText = '0';
+        }
+
+        // Safely processes string assessment evaluation blocks
+        function calculateResult() {
+            try {
+                let expression = screen.innerText;
+                
+                // If input is empty or invalid edge fallback
+                if (!expression) return;
+
+                // Evaluate the basic math string stream expression safely 
+                let result = Function('"use strict";return (' + expression + ')')();
+
+                // Format decimals safely if values evaluate long
+                if (result % 1 !== 0) {
+                    result = parseFloat(result.toFixed(4));
+                }
+
+                screen.innerText = result;
+                resetScreen = true; // Flips state to overwrite screen on next key-press
+            } catch (error) {
+                screen.innerText = 'Error';
+                resetScreen = true;
+            }
+        }
+    </script>
+</body>
+</html>
